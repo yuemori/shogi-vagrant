@@ -25,7 +25,7 @@
   changed_when: false
 
 - name: install bundler
-  gem: name=bundler state=present
+  shell: gem install bundler
   when: bundler_installed|failed
 
 - name: rehash

@@ -8,20 +8,21 @@
 Vagrant.configure(2) do |config|
   config.vm.box = "chef/centos-6.6"
 
-  config.vm.define :ansible do |server|
-    server.vm.network "private_network", ip: "192.168.33.11"
-    config.vm.provision :shell, privileged: false, inline: <<-SCRIPT
-      sudo yum install -y epel-release
-      sudo yum install -y ansible
-      sudo touch /home/vagrant/hosts
-      sudo chown vagrant /home/vagrant/hosts
-      echo '192.168.33.12' > /home/vagrant/hosts
-      export ANSIBLE_HOST_KEY_CHECKING=False
-      ansible-playbook -i /home/vagrant/hosts /vagrant/playbook/shogi.yml --private-key=/vagrant/.vagrant/machines/shogi/virtualbox/private_key
-    SCRIPT
-  end
+  config.vm.network "private_network", ip: "192.168.33.11"
+  config.vm.provision :shell, privileged: false, inline: <<-SCRIPT
+    if ! [ `which ansible` ]; then
+       wget http://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-6
+       sudo rpm --import RPM-GPG-KEY-EPEL-6
+       wget http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+       sudo rpm -ivh epel-release-6-8.noarch.rpm
+       sudo yum install -y ansible
+    fi
 
-  config.vm.define :shogi do |server|
-    server.vm.network "private_network", ip: "192.168.33.12"
-  end
+    echo '192.168.33.11' > /home/vagrant/hosts
+    export ANSIBLE_HOST_KEY_CHECKING=False
+
+    echo '\n'
+    echo 'Now ansible provisioning. Plaase waiting.'
+    ansible-playbook -i /home/vagrant/hosts /vagrant/playbook/shogi.yml --private-key=/vagrant/.vagrant/machines/default/virtualbox/private_key
+  SCRIPT
 end

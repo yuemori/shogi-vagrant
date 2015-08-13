@@ -2,4 +2,4 @@
 yum_mysql_version: 5.5.*
 brew_mysql_version: 55
 mysql_users:
-  - { name: 'shogi', host: '%', password: 'shogi', priv: '*.*:ALL,GRANT' }
+  - { name: 'shogi', host: 'localhost', password: 'shogi', priv: '*.*:ALL,GRANT' }

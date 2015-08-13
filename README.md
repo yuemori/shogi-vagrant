@@ -54,3 +54,7 @@ vagrant ssh-config
 - 今回は[ansible](http://docs.ansible.com/ansible/index.html)という自動化ツールを使っている
   - 詳しくは[ドットインストール](http://dotinstall.com/lessons/basic_ansible)へ
 - 自分でサーバを立てたくなったら、playbookディレクトリの中のファイルを読んだら何をしているかはわかるはず
+
+## Last but the least...
+
+**これからも良きエンジニアライフを！**

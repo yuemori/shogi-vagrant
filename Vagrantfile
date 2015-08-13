@@ -29,5 +29,7 @@ Vagrant.configure(2) do |config|
     echo '\n'
     echo 'Now ansible provisioning. Plaase waiting.'
     ansible-playbook -i /home/vagrant/hosts /vagrant/playbook/shogi.yml --private-key=/home/vagrant/private_key
+    echo '\n'
+    echo 'Install Complete!'
   SCRIPT
 end

@@ -23,8 +23,11 @@ Vagrant.configure(2) do |config|
     sudo chown vagrant /home/vagrant/private_key
     sudo chmod 600 /home/vagrant/private_key
 
+    sudo cp -rf /vagrant/playbook/hosts /home/vagrant/hosts
+    sudo chmod 644 /home/vagrant/hosts
+
     echo '\n'
     echo 'Now ansible provisioning. Plaase waiting.'
-    ansible-playbook -i /vagrant/playbook/hosts /vagrant/playbook/shogi.yml --private-key=/home/vagrant/private_key
+    ansible-playbook -i /home/vagrant/hosts /vagrant/playbook/shogi.yml --private-key=/home/vagrant/private_key
   SCRIPT
 end

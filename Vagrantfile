@@ -18,11 +18,13 @@ Vagrant.configure(2) do |config|
        sudo yum install -y ansible
     fi
 
-    echo '192.168.33.11' > /home/vagrant/hosts
     export ANSIBLE_HOST_KEY_CHECKING=False
+    sudo cp -rf /vagrant/.vagrant/machines/default/virtualbox/private_key /home/vagrant/private_key
+    sudo chown vagrant /home/vagrant/private_key
+    sudo chmod 600 /home/vagrant/private_key
 
     echo '\n'
     echo 'Now ansible provisioning. Plaase waiting.'
-    ansible-playbook -i /home/vagrant/hosts /vagrant/playbook/shogi.yml --private-key=/vagrant/.vagrant/machines/default/virtualbox/private_key
+    ansible-playbook -i /vagrant/playbook/hosts /vagrant/playbook/shogi.yml --private-key=/home/vagrant/private_key
   SCRIPT
 end

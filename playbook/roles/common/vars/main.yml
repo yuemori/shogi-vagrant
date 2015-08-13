@@ -1,0 +1,15 @@
+yum_repos_dir: /etc/yum.repos.d
+yum_plugin_dir: /etc/yum/pluginconf.d
+rpm_repos:
+  epel:
+    url: http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+    repo_file: epel.repo
+  remi:
+    url: http://remi.kazukioishi.net/enterprise/remi-release-6.rpm
+    repo_file: remi.repo
+  rpmforge:
+    url: http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
+    repo_file: rpmforge.repo
+lang: LANG="ja_JP.UTF-8"
+timezone: "Asia/Tokyo"
+localtime: "JST"

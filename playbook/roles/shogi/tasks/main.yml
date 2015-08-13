@@ -1,0 +1,52 @@
+- name: install dependencies
+  yum: name=sqlite-devel state=installed
+  sudo: yes
+
+- name: check repogitory
+  stat: path=/home/vagrant/ShogiServer/.git
+  register: git_repo
+
+- name: clone repogitory
+  git: repo=https://github.com/yuemori/ShogiServer dest=/home/vagrant/ShogiServer
+  register: repo_clone
+
+- name: bundle installed
+  shell: bundle install
+  args:
+    chdir: /home/vagrant/ShogiServer/shogi
+  when: repo_clone|changed
+
+- name: database create
+  shell: bundle exec rake db:create
+  args:
+    chdir: /home/vagrant/ShogiServer/shogi
+  when: not git_repo.stat.exists
+
+- name: database setup
+  shell: bundle exec rake db:migrate
+  args:
+    chdir: /home/vagrant/ShogiServer/shogi
+  when: repo_clone|changed
+
+- name: inject seeds
+  shell: bundle exec rake db:seed_fu
+  args:
+    chdir: /home/vagrant/ShogiServer/shogi
+  when: not git_repo.stat.exists
+
+- name: check server started
+  stat: path=/home/vagrant/ShogiServer/shogi/tmp/pids/server.pid
+  register: server_pid
+  when: repo_clone|changed
+
+- name: server kill
+  shell: kill `cat /home/vagrant/ShogiServer/shogi/tmp/pids/server.pid`
+  sudo: yes
+  when: repo_clone|changed and server_pid.stat.exists
+
+- name: rails server started
+  shell: rails server -d
+  args:
+    chdir: /home/vagrant/ShogiServer/shogi
+  when: repo_clone|changed
+

@@ -1,0 +1,49 @@
+---
+- name: Import repos
+  command: rpm -Uvh {{ item.value.url }} creates={{ yum_repos_dir }}/{{ item.value.repo_file }}
+  with_dict: rpm_repos
+  sudo: yes
+
+- name: update ca-certificates
+  command: yum -y update ca-certificates --disablerepo=epel
+  sudo: yes
+  register: update_certificates
+  changed_when: update_certificates.stdout.find('No Packages marked for Update') == -1
+
+- name: yum update
+  yum: name=* state=latest
+  sudo: yes
+
+- name: install python-selinux
+  yum: name=libselinux-python state=installed
+  sudo: yes
+
+- name: set locale to /etc/sysconfig/i18n
+  replace: >
+    dest=/etc/sysconfig/i18n
+    regexp='^LANG="en_US\.UTF-8"'
+    replace={{ lang }}
+  sudo: yes
+
+- name: set zone to /etc/sysconfig/clock
+  replace: >
+    dest=/etc/sysconfig/clock
+    regexp='^ZONE=\"UTC\"'
+    replace='ZONE={{ timezone }}'
+  sudo: yes
+
+- name: check localtime
+  shell: date
+  register: date_result
+  changed_when: date_result.stdout.find(localtime) == -1 # localtimeがなければchange
+
+- debug: var=date_result.stdout.find(localtime)
+- debug: var=localtime
+
+- name: backoup localtime
+  shell: sudo cp -f /etc/localtime /etc/localtime.org
+  when: date_result.stdout.find(localtime) == -1
+
+- name: copy localtime
+  shell: sudo cp -f /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
+  when: date_result.stdout.find(localtime) == -1

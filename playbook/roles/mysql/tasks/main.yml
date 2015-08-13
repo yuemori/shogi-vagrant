@@ -1,0 +1,24 @@
+---
+- name: ensure mysql-{{ yum_mysql_version }} packages installed
+  yum: name={{ item }}-{{ yum_mysql_version }} state=installed enablerepo=remi
+  sudo: yes
+  with_items:
+    - mysql
+    - mysql-server
+    - mysql-devel
+    - mysql-libs
+  notify:
+    - service mysqld restart
+
+- name: mysqld started
+  service: name=mysqld state=started enabled=yes
+  sudo: yes
+
+# mysql_user module dependent MySQL-python
+- name: instlal dependencies
+  yum: name=MySQL-python state=present
+  sudo: yes
+
+- name: configure mysql user
+  mysql_user: host={{ item.host }} password={{ item.password }} name={{ item.name }} priv={{ item.priv }}
+  with_items: mysql_users

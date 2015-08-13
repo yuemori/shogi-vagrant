@@ -1,9 +1,23 @@
 # shogi-vagrant
 [ShogiServer](https://github.com/yuemori/ShogiServer) deploy to vagrant
 
+## download
+### ZIP
+
+[ここ](https://github.com/yuemori/shogi-vagrant/archive/master.zip)からダウンロード
+
+### Git
+
+```
+git clone https://github.com/yuemori/shogi-vagrant
+```
+
+- gitがわからなければ[この辺のスライド](http://www.find-job.net/startup/7-git-slides)を見てみましょう
+- 使い方は[ドットインストール](http://dotinstall.com/lessons/basic_git)へ
+
 ## dependencies
 
-以下のものをインストールしてください。
+以下のものをインストールしてください
 
 - [Vagrant](https://www.vagrantup.com/)
 - [VirtualBox](https://www.virtualbox.org/)

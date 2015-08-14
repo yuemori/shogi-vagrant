@@ -1,0 +1,73 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# chkconfig:         - 99 35
+# description:       start/stop {{ app_name }} script
+# processname:       {{ app_name }}
+### END INIT INFO
+
+RBENV_ROOT=/home/{{ app_deploy_user }}/.rbenv
+export PATH=$RBENV_ROOT/shims:$RBENV_ROOT/bin:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin
+PID_FILE={{ app_root }}/tmp/pids/server.pid
+APP_DIR={{ app_root }}
+NAME={{ app_name }}
+USER={{ app_deploy_user }}
+
+start() {
+  if [ -e $PID_FILE ]; then
+    echo "$NAME already started"
+    exit 1
+  fi
+  echo "start $NAME"
+  cd $APP_DIR
+  su -c "bundle exec rails server -d" $USER
+}
+
+stop() {
+  if [ ! -e $PID_FILE ]; then
+    echo "$NAME is not running"
+    exit 1
+  fi
+  su -c "kill -QUIT `cat $PID_FILE`" $USER
+  su -c "rm -f $PID_FILE" $USER
+  echo "$NAME stopped"
+}
+
+restart() {
+  echo "restart $NAME"
+  if [ -e $PID_FILE ]; then
+    su -c "kill -QUIT `cat $PID_FILE`" $USER
+    su -c "rm -f $PID_FILE" $USER
+  fi
+  cd $APP_DIR
+  su -c "bundle exec rails server -d" $USER
+}
+
+status() {
+  if [ -f $PID_FILE ]; then
+    echo "$NAME is running(`cat $PID_FILE`)"
+  else
+    echo "$NAME is not running"
+  fi
+  return 0
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    status)
+        status
+        ;;
+    restart)
+        restart
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 2
+esac
+
+exit 0

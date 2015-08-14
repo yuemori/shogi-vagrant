@@ -1,0 +1,6 @@
+app_name: shogi-server
+app_deploy_path: /home/{{ ansible_ssh_user }}/ShogiServer
+app_root: /home/{{ ansible_ssh_user }}/ShogiServer/shogi
+app_repogitory_url: https://github.com/yuemori/ShogiServer
+app_deploy_user: "{{ ansible_ssh_user }}"
+

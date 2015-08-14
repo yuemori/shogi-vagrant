@@ -1,52 +1,68 @@
 - name: install dependencies
-  yum: name=sqlite-devel state=installed
-  sudo: yes
+  yum: name={{ item }} state=installed
+  with_items:
+    - sqlite-devel
+    - gcc-c++
+  sudo: true
+  tags:
+    - shogi
 
-- name: check repogitory
-  stat: path=/home/vagrant/ShogiServer/.git
-  register: git_repo
-
-- name: clone repogitory
-  git: repo=https://github.com/yuemori/ShogiServer dest=/home/vagrant/ShogiServer
+- name: clone app repogitory
+  git: repo={{ app_repogitory_url }} dest={{ app_deploy_path }} update=no
+  sudo: true
+  sudo_user: "{{ app_deploy_user }}"
   register: repo_clone
+  tags:
+    - shogi
 
 - name: bundle installed
-  shell: bundle install
+  shell: $SHELL -lc "bundle install"
+  sudo: true
+  sudo_user: "{{ app_deploy_user }}"
   args:
-    chdir: /home/vagrant/ShogiServer/shogi
-  when: repo_clone|changed
+    chdir: "{{ app_root }}"
+  when: repo_clone | changed
+  tags:
+    - shogi
 
 - name: database create
-  shell: bundle exec rake db:create
+  shell: $SHELL -lc "bundle exec rake db:create"
+  sudo: true
+  sudo_user: "{{ app_deploy_user }}"
   args:
-    chdir: /home/vagrant/ShogiServer/shogi
-  when: not git_repo.stat.exists
+    chdir: "{{ app_root }}"
+  when: repo_clone | changed
+  tags:
+    - shogi
 
 - name: database setup
-  shell: bundle exec rake db:migrate
+  shell: $SHELL -lc "bundle exec rake db:migrate"
+  sudo: true
+  sudo_user: "{{ app_deploy_user }}"
   args:
-    chdir: /home/vagrant/ShogiServer/shogi
-  when: repo_clone|changed
+    chdir: "{{ app_root }}"
+  when: repo_clone | changed
+  tags:
+    - shogi
 
 - name: inject seeds
-  shell: bundle exec rake db:seed_fu
+  shell: $SHELL -lc "bundle exec rake db:seed_fu"
+  sudo: true
+  sudo_user: "{{ app_deploy_user }}"
   args:
-    chdir: /home/vagrant/ShogiServer/shogi
-  when: not git_repo.stat.exists
+    chdir: "{{ app_root }}"
+  when: repo_clone | changed
+  tags:
+    - shogi
 
-- name: check server started
-  stat: path=/home/vagrant/ShogiServer/shogi/tmp/pids/server.pid
-  register: server_pid
-  when: repo_clone|changed
+- name: set init.d script
+  template: src=shogi-server dest=/etc/init.d mode=0744
+  sudo: true
+  tags:
+    - shogi
 
-- name: server kill
-  shell: kill `cat /home/vagrant/ShogiServer/shogi/tmp/pids/server.pid`
-  sudo: yes
-  when: repo_clone|changed and server_pid.stat.exists
-
-- name: rails server started
-  shell: rails server -d
-  args:
-    chdir: /home/vagrant/ShogiServer/shogi
-  when: repo_clone|changed
-
+- name: ensure {{ app_name }} started and enabled
+  service: name={{ app_name }} state=started enabled=yes
+  sudo: true
+  tags:
+    - shogi

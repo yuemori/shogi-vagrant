@@ -9,6 +9,7 @@
       ruby_version: 2.2.0
     rbenv_users:
       - vagrant
+    app_repogitory_url: https://github.com/yuemori/ShogiServer
   roles:
     - common
     - rbenv

@@ -8,50 +8,59 @@
     - shogi
 
 - name: clone app repogitory
-  git: repo={{ app_repogitory_url }} dest={{ app_deploy_path }} update=no
+  git: repo={{ app_repogitory_url }} dest={{ app_deploy_path }}
   sudo: true
   sudo_user: "{{ app_deploy_user }}"
-  register: repo_clone
+  register: app_repogitory_cloned
   tags:
     - shogi
 
 - name: bundle installed
-  shell: $SHELL -lc "bundle install"
+  shell: $SHELL -lc "RAILS_ENV={{ item }} bundle install"
+  with_items: app_setup_environments
   sudo: true
   sudo_user: "{{ app_deploy_user }}"
   args:
     chdir: "{{ app_root }}"
-  when: repo_clone | changed
+  register: bundle_installed
+  changed_when: "'Installing' in bundle_installed.stdout_lines"
   tags:
     - shogi
 
 - name: database create
-  shell: $SHELL -lc "bundle exec rake db:create"
+  shell: $SHELL -lc "RAILS_ENV={{ item }} bundle exec rake db:create"
+  with_items: app_setup_environments
   sudo: true
   sudo_user: "{{ app_deploy_user }}"
   args:
     chdir: "{{ app_root }}"
-  when: repo_clone | changed
+  register: rake_db_created
+  changed_when: rake_db_created.stderr.find('shogi_{{ item }} already exists') == -1
   tags:
     - shogi
 
-- name: database setup
-  shell: $SHELL -lc "bundle exec rake db:migrate"
+- name: database migrate
+  shell: $SHELL -lc "RAILS_ENV={{ item }} bundle exec rake db:migrate"
+  with_items: app_setup_environments
   sudo: true
   sudo_user: "{{ app_deploy_user }}"
   args:
     chdir: "{{ app_root }}"
-  when: repo_clone | changed
+  register: rake_db_migrated
+  changed_when: rake_db_migrated.stdout.find('migrated') != -1
   tags:
     - shogi
 
 - name: inject seeds
-  shell: $SHELL -lc "bundle exec rake db:seed_fu"
+  shell: $SHELL -lc "RAILS_ENV={{ item[0] }} bundle exec rake db:seed_fu"
   sudo: true
   sudo_user: "{{ app_deploy_user }}"
+  with_together:
+    - app_setup_environments
+    - rake_db_created.results
   args:
     chdir: "{{ app_root }}"
-  when: repo_clone | changed
+  when: item[1].stderr.find('shogi_{{ item[0] }} already exists') == -1
   tags:
     - shogi
 

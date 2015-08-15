@@ -33,6 +33,10 @@ vagrant up
 - `Install Complete!`と出力されたらインストール完了です
 - インストールが完了したら、`192.168.33.11:3000`へアクセスし、Railsのスタート画面が表示されるのを確認してみましょう
 
+#### deploy from own repogitory
+
+- 自分のリポジトリからソースコードを取得してデプロイしたい場合はplaybook下にあるshogi.ymlの`app_repogitory_url`を変更してください
+
 ### Login for Virtual Machine
 #### Mac/Linux
 

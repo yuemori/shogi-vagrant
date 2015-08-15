@@ -15,3 +15,7 @@
     - rbenv
     - mysql
     - shogi
+  tasks:
+    - name: iptables stop
+      service: name=iptables state=stopped enabled=no
+      sudo: true

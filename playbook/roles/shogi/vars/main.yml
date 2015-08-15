@@ -1,7 +1,7 @@
-app_name: shogi-server
-app_deploy_path: /home/{{ ansible_ssh_user }}/ShogiServer
-app_root: /home/{{ ansible_ssh_user }}/ShogiServer/shogi
 app_repogitory_url: https://github.com/yuemori/ShogiServer
+app_name: "{{ app_repogitory_url.split('/')[-1] }}"
+app_deploy_path: /home/{{ ansible_ssh_user }}/{{ app_name }}
+app_root: /home/{{ ansible_ssh_user }}/{{ app_name }}/shogi
 app_deploy_user: "{{ ansible_ssh_user }}"
 app_setup_environments:
   - development

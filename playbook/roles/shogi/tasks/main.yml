@@ -65,7 +65,7 @@
     - shogi
 
 - name: set init.d script
-  template: src=shogi-server dest=/etc/init.d mode=0744
+  template: src=rails.sh.j2 dest=/etc/init.d/{{ app_name }} mode=0744
   sudo: true
   tags:
     - shogi
